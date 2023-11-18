@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF to Word Conversion</title>
+    <style>
+        /* Add your CSS styles here */
+        body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to bottom, #4ea7d1, #1978a5);
+    margin: 0;
+    padding: 0;
+    color: #151515;
+    display: flex;
+    height: 100vh;
+}
+.popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    background: #28a745; 
+    color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    z-index: 9999;
+}
+
+
+.left-section {
+    flex: 1;
+    background-color: red;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    border-radius: 20px;
+
+}
+
+.container {
+    flex: 1; /* Take half the width */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+
+h1 {
+    text-align: center;
+    color: #1978a5;
+    margin-bottom: 30px;
+    font-size: 2.5rem;
+}
+
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        /* Style the custom button */
+        label.file-label {
+            padding: 18px 40px;
+            background-color: #0088cc;
+            color: #fff;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        } 
+
+        label.file-label:hover {
+            background-color: #005799;
+        }
+
+        #convertBtn {
+            padding: 18px 40px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-top: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #convertBtn:disabled {
+            background-color: #adb5bd;
+            cursor: not-allowed;
+        }
+
+        #convertBtn:hover {
+            background-color: #218838;
+        }
+
+        #downloadLink {
+            text-align: center;
+            display: none;
+            margin-top: 30px;
+        }
+
+        a {
+            display: inline-block;
+            padding: 16px 40px;
+            background-color: #0088cc;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 50px;
+            transition: background-color 0.3s;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        a:hover {
+            background-color: #005799;
+        }
+
+        /* Add the loading icon styles */
+        .loading-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .loading-icon {
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top: 5px solid #37ff00;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .alert-message p {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 10px;
+            background-color: #37ff00;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            display: block;
+            text-align: center;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        /* Add some hover transitions */
+        .file-label,
+        #convertBtn,
+        a {
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .file-label:hover,
+        #convertBtn:hover,
+        a:hover {
+            background-color: #005799;
+            transform: scale(1.05);
+        }
+
+        #uploadTime {
+            display: none;
+            text-align: center;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: #fff;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999;
+            opacity: 0;
+            animation: popUpAnimation 0.3s ease-out forwards;
+        }
+
+        @keyframes popUpAnimation {
+            0% {
+                bottom: 0;
+                opacity: 0;
+            }
+
+            100% {
+                bottom: 30px;
+                opacity: 1;
+            }
+        }
+    </style>
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5988SMFBN9"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+        gtag('js', new Date());
+        gtag('config', 'G-5988SMFBN9');
+    </script>
+</head>
+<body>
+    <div class="left-section">
+        <h1 style="color: #fff;">PDF</h1>
+        <h1 style="color: #fff;">TO</h1>
+        <h1 style="color: #fff;">WORD FILE</h1>
+        <h1 style="color: #fff;">CONVERTER</h1>
+    </div>
+   <body>
+
+    <div class="container" >
+        <div class="popup" id="filePopup"></div>
+
+        <form id="uploadForm" enctype="multipart/form-data">
+
+            <input type="file" name="pdfFile" id="pdfFileInput" accept=".pdf" required="">
+            <label for="pdfFileInput" class="file-label">Upload File</label>
+            <button type="submit" id="convertBtn">Convert to Word</button>
+        </form>
+        <div id="alertMessage" class="alert-message" style="display:none">
+            <div class="loading-container">
+                <div class="loading-icon"></div>
+                <p>Your file is being processed. Please wait...</p>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: 100%;"></div>
+                <span class="progress-text">100%</span>
+            </div>
+        </div>
+       <center><span id="uploadTime" style="display:none"></span></center>
+        <div id="downloadLink" style="display:none">
+            <a id="downloadBtn" href="#" download="">Download Converted File</a>
+        </div>
+    </div>
+
+    <script>
+       const uploadForm = document.getElementById('uploadForm');
+const convertBtn = document.getElementById('convertBtn');
+const downloadLink = document.getElementById('downloadLink');
+const downloadBtn = document.getElementById('downloadBtn');
+const alertMessage = document.getElementById('alertMessage');
+const uploadTime = document.getElementById('uploadTime');
+const progressBar = document.querySelector('.progress-bar');
+const progressText = document.querySelector('.progress-text');
+
+const fileInput = document.getElementById('pdfFileInput');
+
+// fileInput.addEventListener('change', () => {
+//     // Display selected file name in a pop-up
+//     const selectedFileName = fileInput.files[0].name;
+//     alert(`Selected file: ${selectedFileName}`);
+// });
+
+const filePopup = document.getElementById('filePopup');
+
+fileInput.addEventListener('change', () => {
+    // Display selected file name in a pop-up
+    const selectedFileName = fileInput.files[0].name;
+    filePopup.textContent = `${selectedFileName}  Successfully Selected`;
+    filePopup.style.display = 'block';
+
+    // Close the popup after a delay (e.g., 3 seconds)
+    setTimeout(() => {
+        filePopup.style.display = 'none';
+    }, 3000);
+});
+
+uploadForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    alertMessage.style.display = 'block';
+    progressBar.style.width = '0%';
+    progressText.textContent = '0%';
+
+    // Record the start time before sending the request
+    const startTime = performance.now();
+
+    const formData = new FormData(uploadForm);
+    const response = await fetch('/convert', {
+        method: 'POST',
+        body: formData,
+    });
+
+    const data = await response.json();
+    if (data.success) {
+        // Calculate the time taken after receiving the response
+        const endTime = performance.now();
+        const timeTaken = (endTime - startTime) / 1000; // Convert to seconds
+
+        // Display the time taken
+        uploadTime.innerHTML = `File Converted in ${timeTaken.toFixed(2)} seconds`;
+        uploadTime.style.display = 'block';
+
+        convertBtn.disabled = true;
+        alertMessage.style.display = 'none';
+
+        // Get the filename from the uploaded file
+        const fileName = fileInput.files[0].name;
+        // Remove .pdf extension (optional)
+        const fileNameWithoutExtension = fileName.replace(/\.pdf$/, '');
+
+        // Update the download button with the filename
+        downloadBtn.href = `/download/${data.fileName}`;
+        downloadBtn.setAttribute('download', fileNameWithoutExtension + '.docx');
+        downloadBtn.textContent = `Download "${fileNameWithoutExtension}.docx"`;
+
+        downloadLink.style.display = 'block';
+    } else {
+        console.error('Conversion failed:', data.error);
+        alertMessage.style.display = 'none';
+    }
+});
+
+// Rest of your code for progress bar and simulation
+
+
+        // Function to update the progress bar
+        function updateProgressBar(percentage) {
+            progressBar.style.width = percentage + '%';
+            progressText.textContent = percentage + '%';
+        }
+
+        // Simulate progress update (for demonstration purposes)
+        // In a real implementation, you would update the progress based on actual file conversion progress from the server.
+        function simulateProgressUpdate() {
+            let percentage = 0;
+            const interval = setInterval(() => {
+                percentage += Math.random() * 5; // Simulate incremental progress
+                if (percentage >= 100) {
+                    clearInterval(interval);
+                }
+                updateProgressBar(Math.min(percentage, 100));
+            }, 500);
+        }
+
+        // Call the simulateProgressUpdate function after a brief delay (for demonstration purposes)
+        setTimeout(simulateProgressUpdate, 2000);
+    </script>
+
+
+
+</body>
+</body>
+</html>
